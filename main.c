@@ -37,6 +37,11 @@ void board_draw() {
     printf(" %c", 'A' + x);
   }
   putchar('\n');
+  printf("  ");
+  for (int x = 0; x < 2 * size_board; ++x) {
+    printf("%2u", x);
+  }
+  putchar('\n');
 
   for (int y = 0; y < 2 * size_board; ++y) {
     printf("%2u ", y + 1);
@@ -61,6 +66,40 @@ int near(int x1, int x2, int y1, int y2) {
   return (x == 1 && y == 0) || (x == 0 && y == 1);
 }
 
+// takes the current co-ordiante and teleports it to required point
+void teleport(short int *x_pos, short int *y_pos) {
+  if (board[*y_pos * size_board * 2 + *x_pos] == ' ') {
+
+    if (*x_pos == (size_board - size_hole)) { // Present at Left
+      *x_pos += 2 * size_hole;
+      short int j = 2 * size_hole - (*y_pos - (size_board - size_hole)) - 1;
+      *y_pos += j;
+      return;
+    }
+
+    if (*x_pos == (size_board + size_hole - 1)) { // Present at Right
+      *x_pos -= (2 * size_hole);
+      short int j = 2 * size_hole - (*y_pos - (size_board - size_hole)) - 1;
+      *y_pos += j;
+      return;
+    }
+
+    if (*y_pos == (size_board - size_hole)) { // Present at Top
+      *y_pos += 2 * size_hole;
+      short int j = 2 * size_hole - (*x_pos - (size_board - size_hole)) - 1;
+      *x_pos += j;
+      return;
+    }
+
+    if (*y_pos == (size_board + size_hole - 1)) { // Present at Bottom
+      *y_pos -= (2 * size_hole);
+      short int j = 2 * size_hole - (*x_pos - (size_board - size_hole)) - 1;
+      *x_pos += j;
+      return;
+    }
+  }
+}
+
 void possible(char player) {
   // Generates all valid move list for current player
 
@@ -74,20 +113,24 @@ void possible(char player) {
 
     choices_x[nchoices] = (x_pos + 1) % (2 * size_board);
     choices_y[nchoices] = y_pos;
+    teleport(&choices_x[nchoices], &choices_y[nchoices]);
     nchoices++;
 
     choices_x[nchoices] =
         ((x_pos - 1) < 0) ? 2 * size_board + x_pos - 1 : x_pos - 1;
     choices_y[nchoices] = y_pos;
+    teleport(&choices_x[nchoices], &choices_y[nchoices]);
     nchoices++;
 
     choices_x[nchoices] = x_pos;
     choices_y[nchoices] =
         ((y_pos - 1) < 0) ? 2 * size_board + y_pos - 1 : y_pos - 1;
+    teleport(&choices_x[nchoices], &choices_y[nchoices]);
     nchoices++;
 
     choices_x[nchoices] = x_pos;
     choices_y[nchoices] = (y_pos + 1) % (2 * size_board);
+    teleport(&choices_x[nchoices], &choices_y[nchoices]);
     nchoices++;
   }
 }
