@@ -75,7 +75,39 @@ int near(int x1, int x2, int y1, int y2) {
 
   return (x == 1 && y == 0) || (x == 0 && y == 1);
 }
+void possible(char player) {
+  // Generates all valid move list for current player
+  char choices_x[12];
+  int choices_y[12];
 
+  int p = 0;
+  for (int i = 4; i >= 2; i--) {
+    int x_pos = last_moves_x[player - 'A'][i];
+    int y_pos = last_moves_y[player - 'A'][i];
+
+    if (x_pos < 0)
+      break;
+
+    choices_x[p] = x_pos + 'A';
+    choices_y[p++] = y_pos;
+
+    choices_x[p] = x_pos + 'A';
+    choices_y[p++] = y_pos + 2;
+
+    choices_x[p] = x_pos + 1 + 'A';
+    choices_y[p++] = y_pos + 1;
+
+    choices_x[p] = x_pos - 1 + 'A';
+    choices_y[p++] = y_pos + 1;
+  }
+  printf("Your Valid move list : \n");
+  for (int i = 0; i < p; i++) {
+    if (i % 4 == 0)
+      printf("\n");
+    printf("%d%c  ", choices_y[i], choices_x[i]);
+  }
+  printf("\n");
+}
 int valid(char player, int target_x, int target_y) {
   if (last_moves_x[player - 'A'][4] < 0 && last_moves_y[player - 'A'][4] < 0) {
     return 1;
@@ -131,6 +163,7 @@ int main(int argc, char const *argv[]) {
     char target_x;
     short target_y;
     while (1) {
+      possible(player);
       printf("Player %c > ", player);
 
       if (scanf("%hu%c", &target_y, &target_x) != 2)
