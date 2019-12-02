@@ -13,24 +13,9 @@ short last_moves_y[2][5] = {{-100, -100, -100, -100, -100},
                             {-100, -100, -100, -100, -100}};
 char *board;
 
-int min(int arg_count, ...) {
-  int i;
-  int min, a;
-
-  va_list ap;
-
-  va_start(ap, arg_count);
-
-  min = va_arg(ap, int);
-
-  for (i = 2; i <= arg_count; i++)
-    if ((a = va_arg(ap, int)) < min)
-      min = a;
-
-  va_end(ap);
-
-  return min;
-}
+short choices_x[12];
+short choices_y[12];
+short nchoices = 0;
 
 void board_reset() {
   for (int y = 0; y < 2 * size_board; ++y) {
@@ -75,12 +60,11 @@ int near(int x1, int x2, int y1, int y2) {
 
   return (x == 1 && y == 0) || (x == 0 && y == 1);
 }
+
 void possible(char player) {
   // Generates all valid move list for current player
-  char choices_x[12];
-  int choices_y[12];
 
-  int p = 0;
+  nchoices = 0;
   for (int i = 4; i >= 2; i--) {
     int x_pos = last_moves_x[player - 'A'][i];
     int y_pos = last_moves_y[player - 'A'][i];
@@ -88,37 +72,54 @@ void possible(char player) {
     if (x_pos < 0)
       break;
 
-    choices_x[p] = x_pos + 'A';
-    choices_y[p++] = y_pos;
+    choices_x[nchoices] = (x_pos + 1) % (2 * size_board);
+    choices_y[nchoices] = y_pos;
+    nchoices++;
 
-    choices_x[p] = x_pos + 'A';
-    choices_y[p++] = y_pos + 2;
+    choices_x[nchoices] =
+        ((x_pos - 1) < 0) ? 2 * size_board + x_pos - 1 : x_pos - 1;
+    choices_y[nchoices] = y_pos;
+    nchoices++;
 
-    choices_x[p] = x_pos + 1 + 'A';
-    choices_y[p++] = y_pos + 1;
+    choices_x[nchoices] = x_pos;
+    choices_y[nchoices] =
+        ((y_pos - 1) < 0) ? 2 * size_board + y_pos - 1 : y_pos - 1;
+    nchoices++;
 
-    choices_x[p] = x_pos - 1 + 'A';
-    choices_y[p++] = y_pos + 1;
+    choices_x[nchoices] = x_pos;
+    choices_y[nchoices] = (y_pos + 1) % (2 * size_board);
+    nchoices++;
   }
+}
+
+void moves_print() {
   printf("Your Valid move list : \n");
-  for (int i = 0; i < p; i++) {
+  for (int i = 0; i < nchoices; i++) {
     if (i % 4 == 0)
       printf("\n");
-    printf("%d%c  ", choices_y[i], choices_x[i]);
+    printf("%d%c ", choices_y[i] + 1, choices_x[i] + 'A');
   }
   printf("\n");
 }
-int valid(char player, int target_x, int target_y) {
+int valid(char player, short target_x, short target_y) {
+  char otherplayer = (player == 'A') ? 'B' : 'A';
+
+  char current = board[2 * size_board * target_y + target_x];
+  if (current != '.' && current != otherplayer &&
+      current != tolower(otherplayer))
+    return 0;
+
   if (last_moves_x[player - 'A'][4] < 0 && last_moves_y[player - 'A'][4] < 0) {
-    return 1;
+    return 1; // no moves yet, all moves valid
   }
 
-  return near(last_moves_x[player - 'A'][4], target_x,
-              last_moves_y[player - 'A'][4], target_y) ||
-         near(last_moves_x[player - 'A'][3], target_x,
-              last_moves_y[player - 'A'][3], target_y) ||
-         near(last_moves_x[player - 'A'][2], target_x,
-              last_moves_y[player - 'A'][2], target_y);
+  for (int i = 0; i < nchoices; ++i) {
+    if (choices_y[i] == target_y && choices_x[i] == target_x) {
+      return 1;
+    }
+  }
+
+  return 0;
 }
 
 int final(char player, int target_x, int target_y) {
@@ -130,22 +131,8 @@ int final(char player, int target_x, int target_y) {
   if (board[target_y * 2 * size_board + target_x] == tolower(player2))
     return 2; // has eaten the tail.
   return 0;
-
-  /*int j = min(3, (last_moves[player2 - 'A'][0] - curr_loc),
-              (last_moves[player2 - 'A'][1] - curr_loc),
-              (last_moves[player2 - 'A'][2] - curr_loc));
-
-  if (j == 0)
-    return 1; // has eaten the head.
-
-  j = min(2, (last_moves[player2 - 'A'][3] - curr_loc),
-          (last_moves[player2 - 'A'][4] - curr_loc));
-
-  if (j == 0)
-    return 2;
-
-  return 0;   // nothing important happened.*/
 }
+
 int main(int argc, char const *argv[]) {
   if (argc > 1) {
     size_board = atoi(argv[1]);
@@ -162,10 +149,12 @@ int main(int argc, char const *argv[]) {
     board_draw();
     char target_x;
     short target_y;
+
     while (1) {
       possible(player);
-      printf("Player %c > ", player);
+      moves_print();
 
+      printf("Player %c > ", player);
       if (scanf("%hu%c", &target_y, &target_x) != 2)
         continue;
 
@@ -173,7 +162,7 @@ int main(int argc, char const *argv[]) {
       if (target_x < 0 || target_x >= size_board * 2)
         continue;
 
-      target_y--;
+      target_y -= 1;
       if (target_y < 0 || target_y >= size_board * 2)
         continue;
 
@@ -181,6 +170,7 @@ int main(int argc, char const *argv[]) {
         break;
       printf("Invalid input\n");
     }
+
     if (final(player, target_x, target_y) == 1) {
       printf("******Player %c has WON******\n", player);
       break;
