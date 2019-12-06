@@ -23,7 +23,8 @@ RULES OF GAME:
 10) Elements cannot exist inside the inner hole.
 11) The inner hole teleports elements diagonally.
 
-**Size of board can be set at the beginning of execution**
-**Size of snake can easily modified at the begining of the code**
+**Size of the board can be set at the beginning of execution**
+**Size of snake can easily be modified at the beginning of the code**
 
 
+**ANY STARTING MOVE IS VALID AND IT HAS TO BE ENTERED IN THE FORMAT: 1B or 1c**

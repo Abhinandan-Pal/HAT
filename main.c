@@ -185,7 +185,42 @@ int final(char player, int target_x, int target_y) {
     return 2; // has eaten the tail.
   return 0;
 }
-
+void info() {
+  printf("\n\n 88         88     888888888     888888888888\n");
+  printf(" 88         88   88         88        88\n");
+  printf(" 88         88   88         88        88\n");
+  printf(" 88         88   88         88        88\n");
+  printf("   888888888       888888888          88\n");
+  printf("   888888888       888888888          88\n");
+  printf(" 88         88   88         88        88\n");
+  printf(" 88         88   88         88        88\n");
+  printf(" 88         88   88         88        88\n");
+  printf(" 88         88   88         88        88 \n");
+  printf("\n");
+  printf("\n");
+  printf("RULES OF GAME:\n");
+  printf("1) If a player hit's on the head of another player. He/She wins the "
+         "game.\n");
+  printf("2) If a player is forced to hit the tail of another player.He/She "
+         "loses the game.\n");
+  printf("3) Any random point can be taken as a starting point.\n");
+  printf("4) From then a list of valid moves will appear based on the rules of "
+         "the game.\n");
+  printf("5) One can move with their head. Each head point with 4 "
+         "possibilities.\n");
+  printf("6) A head turns into a tail with time.\n");
+  printf("7) Tail disappears with time to keep number of tail point as 5 and "
+         "number of head point as 4\n");
+  printf("8) The outer boundary is circularly enclosed.\n");
+  printf("10) Elements cannot exist inside the inner hole.\n");
+  printf("11) The inner hole teleports elements diagonally.\n");
+  printf("\n");
+  printf("**Size of the board can be set at the beginning of execution**\n");
+  printf("**Size of snake can easily be modified at the beginning of the "
+         "code**\n\n\n");
+  printf("**ANY STARTING MOVE IS VALID AND IT HAS TO BE ENTERED IN THE FORMAT: "
+         "1B or 1c**\n\n\n");
+}
 int main(int argc, char const *argv[]) {
   if (argc > 1) {
     size_board = atoi(argv[1]);
@@ -193,6 +228,7 @@ int main(int argc, char const *argv[]) {
       size_hole = atoi(argv[2]);
     }
   }
+  info();
   fill_moves();
   board = (char *)malloc(4 * size_board * size_board * sizeof(char));
   board_reset();
