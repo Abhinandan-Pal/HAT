@@ -1,16 +1,5 @@
 A matrix-based mathematical game. For 2 players.
 
-88         88     888888888     888888888888
-88         88   88         88        88
-88         88   88         88        88
-88         88   88         88        88
-  888888888       888888888          88
-  888888888       888888888          88
-88         88   88         88        88
-88         88   88         88        88
-88         88   88         88        88
-88         88   88         88        88 
-
 RULES OF GAME:
 1) If a player hit's on the head of another player. He/She wins the game.
 2) If a player is forced to hit the tail of another player.He/She loses the game.
