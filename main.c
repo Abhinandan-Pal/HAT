@@ -1,20 +1,29 @@
+
 #include <ctype.h>
 #include <math.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
+#define SIZE_HEAD 4
+#define SIZE_TAIL 5
+#define SIZE_SNAKE (SIZE_TAIL + SIZE_HEAD)
 
 unsigned short size_board = 10;
 unsigned short size_hole = 5;
 
-short last_moves_x[2][5] = {{-100, -100, -100, -100, -100},
-                            {-100, -100, -100, -100, -100}};
-short last_moves_y[2][5] = {{-100, -100, -100, -100, -100},
-                            {-100, -100, -100, -100, -100}};
+short last_moves_x[2][SIZE_SNAKE];
+short last_moves_y[2][SIZE_SNAKE];
 char *board;
-
-short choices_x[12];
-short choices_y[12];
+void fill_moves() {
+  for (int i = 0; i < SIZE_SNAKE; i++) {
+    last_moves_x[0][i] = -100;
+    last_moves_x[1][i] = -100;
+    last_moves_y[0][i] = -100;
+    last_moves_y[1][i] = -100;
+  }
+}
+short choices_x[SIZE_HEAD * 4];
+short choices_y[SIZE_HEAD * 4];
 short nchoices = 0;
 
 void board_reset() {
@@ -104,7 +113,7 @@ void possible(char player) {
   // Generates all valid move list for current player
 
   nchoices = 0;
-  for (int i = 4; i >= 2; i--) {
+  for (int i = SIZE_SNAKE - 1; i >= SIZE_TAIL; i--) {
     int x_pos = last_moves_x[player - 'A'][i];
     int y_pos = last_moves_y[player - 'A'][i];
 
@@ -152,7 +161,8 @@ int valid(char player, short target_x, short target_y) {
       current != tolower(otherplayer))
     return 0;
 
-  if (last_moves_x[player - 'A'][4] < 0 && last_moves_y[player - 'A'][4] < 0) {
+  if (last_moves_x[player - 'A'][SIZE_SNAKE - 1] < 0 &&
+      last_moves_y[player - 'A'][SIZE_SNAKE - 1] < 0) {
     return 1; // no moves yet, all moves valid
   }
 
@@ -183,7 +193,7 @@ int main(int argc, char const *argv[]) {
       size_hole = atoi(argv[2]);
     }
   }
-
+  fill_moves();
   board = (char *)malloc(4 * size_board * size_board * sizeof(char));
   board_reset();
 
@@ -237,18 +247,14 @@ int main(int argc, char const *argv[]) {
           tolower(board[last_moves_y[player - 'A'][2] * 2 * size_board +
                         last_moves_x[player - 'A'][2]]);
     }
-    last_moves_x[player - 'A'][0] = last_moves_x[player - 'A'][1];
-    last_moves_x[player - 'A'][1] = last_moves_x[player - 'A'][2];
-    last_moves_x[player - 'A'][2] = last_moves_x[player - 'A'][3];
-    last_moves_x[player - 'A'][3] = last_moves_x[player - 'A'][4];
-    last_moves_x[player - 'A'][4] = target_x;
+    for (int i = 0; i < SIZE_SNAKE - 1; i++) {
+      last_moves_x[player - 'A'][i] = last_moves_x[player - 'A'][i + 1];
+      last_moves_y[player - 'A'][i] = last_moves_y[player - 'A'][i + 1];
+    }
+    last_moves_x[player - 'A'][SIZE_SNAKE - 1] = target_x;
 
     tolower(board[last_moves_y[player - 'A'][2]]);
-    last_moves_y[player - 'A'][0] = last_moves_y[player - 'A'][1];
-    last_moves_y[player - 'A'][1] = last_moves_y[player - 'A'][2];
-    last_moves_y[player - 'A'][2] = last_moves_y[player - 'A'][3];
-    last_moves_y[player - 'A'][3] = last_moves_y[player - 'A'][4];
-    last_moves_y[player - 'A'][4] = target_y;
+    last_moves_y[player - 'A'][SIZE_SNAKE - 1] = target_y;
 
     player = (player == 'A') ? 'B' : 'A';
   }
